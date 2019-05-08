@@ -3,11 +3,11 @@ import os
 import numpy as np
 import shutil
 def segment():
-    print("segmenting")
+    print("Segmenting")
     #import image
     path=os.path.join(os.getcwd(),'working/')
     # inputfile=os.listdir(path)[0]
-    inputfile='doc.jpg'
+    inputfile='print.jpg'
     gray = cv2.imread(path+inputfile,0)
     blur = cv2.GaussianBlur(gray,(5,5),0)
     ret,line_binary = cv2.threshold(blur,127,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -40,8 +40,8 @@ def segment():
         line_roi_binary=line_binary[line_y:line_y+line_h,line_x:line_x+line_w]
         line_mask=np.zeros_like(line_binary)
         cv2.drawContours(line_mask,[line_ctr],0, (255,255,255), -1)
-        cv2.imshow('final',line_mask)
-        cv2.waitKey(0)
+        # cv2.imshow('final',line_mask)
+        # cv2.waitKey(0)
         line_roi_mask=line_mask[line_y:line_y+line_h,line_x:line_x+line_w]
         line_roi_binary=cv2.bitwise_and(line_roi_binary,line_roi_mask)
         
@@ -106,7 +106,28 @@ def segment():
                                 char_roi_thresh=255-char_roi_thresh
 
                                 if(char_roi_thresh.shape[1]>word_roi.shape[1]//20):
-                                        cv2.imwrite(dest+str(word_count)+'/'+str(char_count)+".jpg",char_roi_thresh)
+
+                                        #PADDING AND RESIZING
+
+
+                                        shape=char_roi_thresh.shape
+                                        w=shape[1]
+                                        h=shape[0]
+                                        for i in range(0,4):
+                                                base_size=h+20,w+20
+                                                #make a 3 channel image for base which is slightly larger than target img
+                                                base=np.zeros(base_size,dtype=np.uint8)
+                                                cv2.rectangle(base,(0,0),(w+20,h+20),(255,255,255),30)#really thick white rectangle
+                                                base[10:h+10,10:w+10]=char_roi_thresh
+                                                char_roi_thresh=base
+                                                h=h+20  
+                                                w=w+20
+                                        dim=(86,86)
+                                        resized = cv2.resize(char_roi_thresh, dim, interpolation=cv2.INTER_CUBIC)
+
+
+
+                                        cv2.imwrite(dest+str(word_count)+'/'+str(char_count)+".jpg",resized)
                                         char_count+=1
                         word_count+=1
 # shutil.rmtree('working/word')

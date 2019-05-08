@@ -11,6 +11,7 @@ def safe_get(self,key):
     else: 
         return 0
 def generate(labels):
+    print("Generating Unicode")
     path=os.path.join(os.getcwd(),'working')
     # f= open(path+"/labels.txt")
     # labels=f.read()
